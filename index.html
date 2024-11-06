@@ -50,27 +50,27 @@
     
     <script>
         function uploadFile() {
-            // ตัวแปรที่ดึงข้อมูลจากฟอร์ม
+            // Get form data
             const form = document.getElementById('uploadForm');
             const fileInput = document.getElementById('file');
             const company = document.getElementById('company').value;
             
-            // ตรวจสอบว่าได้เลือกไฟล์หรือไม่
+            // Check if a file has been selected
             if (fileInput.files.length === 0) {
                 document.getElementById('status').innerText = 'Please select a file!';
                 return;
             }
 
-            const file = fileInput.files[0];  // ดึงไฟล์ที่เลือก
-            const reader = new FileReader();  // สร้างตัวอ่านไฟล์
+            const file = fileInput.files[0];  // Get the selected file
+            const reader = new FileReader();  // Create a FileReader
 
             reader.onload = function(e) {
-                const fileData = e.target.result.split(',')[1]; // แปลงเป็น Base64
+                const fileData = e.target.result.split(',')[1]; // Convert to Base64
 
-                // URL ของ Google Apps Script ที่ได้จากการ Deploy
-                const scriptURL = 'https://script.google.com/macros/s/AKfycbwWEjmRwP8JFLL_cHjs5eS-475H-CYlrlwmGM5-KHgMdy-eAf20EE4ptJnQrfELNUrF6g/exec';  // ใส่ URL ของ Web App ที่ได้จากการ Deploy
+                // URL of your Google Apps Script Web App
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbwFB2rSSJdrKfNwOzRIWuJoDQyz-DCOVi4yzMTCG5V-mo7vBLx4ZViYr9YHjEzAMHgssQ/exec';  // Replace with your script URL
 
-                // ส่งข้อมูลไปยัง Google Apps Script
+                // Send data to Google Apps Script
                 fetch(scriptURL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -80,16 +80,16 @@
                         companyName: company
                     })
                 })
-                .then(response => response.text())  // รับผลลัพธ์จาก Google Apps Script
+                .then(response => response.text())  // Receive the response
                 .then((response) => {
-                    document.getElementById('status').innerText = 'Upload successful! Response: ' + response;
+                    document.getElementById('status').innerText = 'Upload successful! File ID: ' + response;
                 })
                 .catch(error => {
                     document.getElementById('status').innerText = 'Upload failed: ' + error.message;
                 });
             };
 
-            // อ่านไฟล์เป็น Base64
+            // Read the file as Base64
             reader.readAsDataURL(file);
         }
     </script>

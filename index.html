@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File to Google Drive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .input-field {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Upload File to Google Drive</h2>
+    <form id="uploadForm">
+        <div class="input-field">
+            <label for="company">Company Name:</label>
+            <input type="text" id="company" name="company" required>
+        </div>
+        <div class="input-field">
+            <label for="file">Choose File:</label>
+            <input type="file" id="file" name="file" required>
+        </div>
+        <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+    <p id="status"></p>
+    
+    <script>
+        function uploadFile() {
+            // ตัวแปรที่ดึงข้อมูลจากฟอร์ม
+            const form = document.getElementById('uploadForm');
+            const fileInput = document.getElementById('file');
+            const company = document.getElementById('company').value;
+            
+            // ตรวจสอบว่าได้เลือกไฟล์หรือไม่
+            if (fileInput.files.length === 0) {
+                document.getElementById('status').innerText = 'Please select a file!';
+                return;
+            }
+
+            const file = fileInput.files[0];  // ดึงไฟล์ที่เลือก
+            const reader = new FileReader();  // สร้างตัวอ่านไฟล์
+
+            reader.onload = function(e) {
+                const fileData = e.target.result.split(',')[1]; // แปลงเป็น Base64
+
+                // URL ของ Google Apps Script ที่ได้จากการ Deploy
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbwWEjmRwP8JFLL_cHjs5eS-475H-CYlrlwmGM5-KHgMdy-eAf20EE4ptJnQrfELNUrF6g/exec';  // ใส่ URL ของ Web App ที่ได้จากการ Deploy
+
+                // ส่งข้อมูลไปยัง Google Apps Script
+                fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileData: fileData,
+                        companyName: company
+                    })
+                })
+                .then(response => response.text())  // รับผลลัพธ์จาก Google Apps Script
+                .then((response) => {
+                    document.getElementById('status').innerText = 'Upload successful! Response: ' + response;
+                })
+                .catch(error => {
+                    document.getElementById('status').innerText = 'Upload failed: ' + error.message;
+                });
+            };
+
+            // อ่านไฟล์เป็น Base64
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
